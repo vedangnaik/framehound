@@ -5,44 +5,38 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <linux/if_packet.h>
+#include <net/ethernet.h>
+#include <errno.h>
+#include <unistd.h>
 
 void main() {
-    // create a socket
-    int socketHandle = socket(PF_PACKET, SOCK_RAW, htons(0x0800));
+    // create a socket listening for IP packets
+    int socketHandle = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_IP));
     if (socketHandle == -1) { 
         printf("error opening socket\n");
         return;
     }
 
-    // set the interface to promiscuous mode
-    const char* interfaceName = "lo";
-    // struct ifreq interfaceInfo;
-    // strncpy(interfaceInfo.ifr_name, interfaceName, strlen(interfaceName));
-    // ioctl(socketHandle, SIOCGIFFLAGS, &interfaceInfo);
-    // interfaceInfo.ifr_flags |= IFF_PROMISC;
-    // ioctl(socketHandle, SIOCSIFFLAGS, &interfaceInfo);
+    // no binding, so it'll listen to everything
     
-    // normally, there's no need to bind; it'll automatically be bound to a random free port and to INADDR_ANY. However, we only want to receive packets from a specific interface, so we'll bind the socket to that here.
-    // state interface name and set it to promiscuous mode to get all packets 
-    int res = setsockopt(
-        socketHandle, 
-        SOL_SOCKET, 
-        SO_BINDTODEVICE, 
-        interfaceName, 
-        strlen(interfaceName)
-    );
-    if (res == -1) {
-        printf("error opening network interface\n");
-        return;
-    } else {
-        printf("interface bind: %d\n", res);
-    }
-
     // listen for packets:
-    printf("Here\n");
-    uint8_t buffer[1024];
+    uint8_t buffer[2048];
     while (1) {
-        ssize_t numBytesReceived = recvfrom(socketHandle, buffer, 1024, 0, NULL, NULL);
-        printf("%d\n", numBytesReceived);
+        ssize_t numBytesRecv = recvfrom(
+            socketHandle, 
+            buffer, 
+            2048, 
+            0, 
+            NULL, NULL
+        );
+
+        printf("Bytes: %d", numBytesRecv);
+        for (int i = 0; i < numBytesRecv; i++) {
+            if (i % 8 == 0) { printf("\n"); }
+            printf("%.2x ", buffer[i]);
+        }
+        printf("\n\n");
     }
 }
