@@ -1,7 +1,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
-#include <net/if.h>
+#include <linux/if.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
@@ -19,16 +19,34 @@ void main() {
         return;
     }
 
-    // set interface name
+    // set interface name and create ifreq struct
     const char* ifrName = "lo";
-    // get interface index using ioctl
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(struct ifreq));
-    strncpy(ifr.ifr_name, ifrName, IF_NAMESIZE);
-    if (ioctl(socketHandle, SIOCGIFINDEX, &ifr) == -1) {
-        perror("interface index find failed");
+    strncpy(ifr.ifr_name, ifrName, IFNAMSIZ);
+
+    // set interface to promiscuous mode using ioctl
+    // first, get flags
+    if (ioctl(socketHandle, SIOCGIFFLAGS, &ifr) == -1) {
+        perror("interface flags get failed");
+        printf("interface flags: %d\n", ifr.ifr_flags);
         return;
     }
+    // now, set promisc bit high
+    ifr.ifr_flags |= IFF_PROMISC;
+    // now, set flags back
+    if (ioctl(socketHandle, SIOCSIFFLAGS, &ifr) == -1) {
+        perror("interface flags set failed");
+        printf("interface flags: %d\n", ifr.ifr_flags);
+        return;
+    }
+
+    // get interface index
+    if (ioctl(socketHandle, SIOCGIFINDEX, &ifr) == -1) {
+        perror("interface index get failed");
+        printf("interface index: %d\n", ifr.ifr_ifindex);
+    }
+
     // bind socket to interface using sockaddr_ll
     struct sockaddr_ll sll;
     sll.sll_family = AF_PACKET;
@@ -36,6 +54,7 @@ void main() {
     sll.sll_protocol = htons(ETH_P_IP);
     if (bind(socketHandle, (struct sockaddr*)&sll, sizeof(sll)) == -1) {
         perror("interface bind failed");
+        printf("interface index: %d\n", ifr.ifr_ifindex);
         return;
     };
     
