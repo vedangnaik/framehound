@@ -17,10 +17,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    framehound.cpp
+    framehound.cpp \
+    sniffer.cpp
 
 HEADERS += \
-    framehound.h
+    framehound.h \
+    sniffer.h
 
 FORMS += \
     framehound.ui
