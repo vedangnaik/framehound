@@ -32,6 +32,7 @@ FrameHound::~FrameHound()
 
 // HELPERS
 struct innerProtocolInfo {
+    uint16_t innerProtocolID;
     uint8_t* innerProtocolStart;
     QFrame* innerProtocolFrame;
 };
@@ -52,20 +53,20 @@ struct innerProtocolInfo displayEthernetHeaders(uint8_t* ethHdrS, ssize_t pktLen
     char srcMACaddr[20];
     sprintf(srcMACaddr, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
             ethHdrS[6], ethHdrS[7], ethHdrS[8], ethHdrS[9], ethHdrS[10], ethHdrS[11]);
-    char innerProtocolID[7];
-    sprintf(innerProtocolID, "0x%.2x%.2x", ethHdrS[12], ethHdrS[13]);
+    uint16_t innerProtocolID = (ethHdrS[12] * 256) + ethHdrS[13];
 
     ethHdrExp->setText("Dst MAC Address: " + QString(dstMACaddr) + "\n" +
                     "Src MAC Address: " + QString(srcMACaddr) + "\n" +
-                    "Inner Protocol: " + QString(innerProtocolID));
+                    "Inner Protocol: " + QString::number(innerProtocolID));
 
     struct innerProtocolInfo ret;
+    ret.innerProtocolID = innerProtocolID;
     ret.innerProtocolStart = ethHdrS + 14;
     ret.innerProtocolFrame = innerProtocolFrame;
     return ret;
 }
 
-struct innerProtocolInfo displayIPHeaders(uint8_t* IPHdrs, ssize_t pktLen, QFrame* IPQFrame) {
+struct innerProtocolInfo displayIPHeaders(uint8_t* IPHdrS, ssize_t pktLen, QFrame* IPQFrame) {
     IPQFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
     QHBoxLayout* hl = new QHBoxLayout();
     QLabel* IPHdrExp = new QLabel();
@@ -75,31 +76,32 @@ struct innerProtocolInfo displayIPHeaders(uint8_t* IPHdrs, ssize_t pktLen, QFram
     hl->addWidget(innerProtocolFrame);
     IPQFrame->setLayout(hl);
 
-    uint8_t hdrLen = IPHdrs[0] & 0x0F;
-    uint16_t totalLen = IPHdrs[2] + IPHdrs[3];
-    uint16_t identifier = (IPHdrs[4] * 256) + IPHdrs[5];
-    uint8_t flags = (IPHdrs[6] & 0b11100000) >> 5;
-    uint16_t fragOffset = ((IPHdrs[6] * 256) + IPHdrs[7]) & 0x1FFF;
-    uint16_t checksum = (IPHdrs[10] * 256) + IPHdrs[11];
-    char srcIP[8];
-    sprintf(srcIP, "%d.%d.%d.%d", IPHdrs[12], IPHdrs[13], IPHdrs[14], IPHdrs[15]);
-    char dstIP[8];
-    sprintf(dstIP, "%d.%d.%d.%d", IPHdrs[16], IPHdrs[17], IPHdrs[18], IPHdrs[19]);
+    uint8_t hdrLen = IPHdrS[0] & 0x0F;
+    uint16_t totalLen = IPHdrS[2] + IPHdrS[3];
+    uint16_t identifier = (IPHdrS[4] * 256) + IPHdrS[5];
+    uint8_t flags = (IPHdrS[6] & 0b11100000) >> 5;
+    uint16_t fragOffset = ((IPHdrS[6] * 256) + IPHdrS[7]) & 0x1FFF;
+    uint16_t checksum = (IPHdrS[10] * 256) + IPHdrS[11];
+    char srcIP[10];
+    sprintf(srcIP, "%d.%d.%d.%d", IPHdrS[12], IPHdrS[13], IPHdrS[14], IPHdrS[15]);
+    char dstIP[10];
+    sprintf(dstIP, "%d.%d.%d.%d", IPHdrS[16], IPHdrS[17], IPHdrS[18], IPHdrS[19]);
 
-    IPHdrExp->setText("Version: " + QString::number(IPHdrs[0] >> 4) + " | " +
+    IPHdrExp->setText("Version: " + QString::number(IPHdrS[0] >> 4) + " | " +
                       "Header length: " + QString::number(hdrLen) + " | " +
-                      "IP Precedence/DSCP:" + QString(IPHdrs[1]) + " | " +
-                      "Total length: " + QString::number(totalLen) + "\n");
-    IPHdrExp->setText(IPHdrExp->text() +
+                      "IP Precedence/DSCP:" + QString(IPHdrS[1]) + " | " +
+                      "Total length: " + QString::number(totalLen) + "\n"
+            +
                       "Identifier: " + QString::number(identifier) + " | " +
                       "Flags: " + QString::number(flags) + " | " +
-                      "Fragmented Offset: " + QString::number(fragOffset) + "\n");
-    IPHdrExp->setText(IPHdrExp->text() +
-                      "Time to live: " + QString::number(IPHdrs[8]) + " | " +
-                      "Inner Protocol: " + QString::number(IPHdrs[9]) + " | " +
-                      "Checksum Value: " +  QString::number(checksum) + "\n");
-    IPHdrExp->setText(IPHdrExp->text() +
-                      "Src IP: " + QString(srcIP) + "\n" +
+                      "Fragmented Offset: " + QString::number(fragOffset) + "\n"
+            +
+                      "Time to live: " + QString::number(IPHdrS[8]) + " | " +
+                      "Inner Protocol: " + QString::number(IPHdrS[9]) + " | " +
+                      "Checksum Value: " +  QString::number(checksum) + "\n"
+            +
+                      "Src IP: " + QString(srcIP) + "\n"
+            +
                       "Dst IP: " + QString(dstIP) + "\n");
 
     if (hdrLen == 6) {
@@ -110,7 +112,8 @@ struct innerProtocolInfo displayIPHeaders(uint8_t* IPHdrs, ssize_t pktLen, QFram
     }
 
     struct innerProtocolInfo ret;
-    ret.innerProtocolStart = IPHdrs + (4 * hdrLen);
+    ret.innerProtocolID = IPHdrS[9];
+    ret.innerProtocolStart = IPHdrS + (4 * hdrLen);
     ret.innerProtocolFrame = innerProtocolFrame;
     return ret;
 }
@@ -119,8 +122,32 @@ struct innerProtocolInfo displayIPHeaders(uint8_t* IPHdrs, ssize_t pktLen, QFram
 
 void FrameHound::receivePacketFromSniffer(uint8_t* packet, ssize_t packetLength) {
     QFrame* packetFrame = new QFrame();
-    struct innerProtocolInfo l3 = displayEthernetHeaders(packet, packetLength, packetFrame);
-    struct innerProtocolInfo l4 = displayIPHeaders(l3.innerProtocolStart, packetLength, l3.innerProtocolFrame);
+    struct innerProtocolInfo L3;
+    struct innerProtocolInfo L4;
+
+    // Switch case needed here to display ARP, PPP, etc. packets
+    L3 = displayEthernetHeaders(packet, packetLength, packetFrame);
+
+    // Choose function to decipher L3 headers
+    switch(L3.innerProtocolID) {
+    case 2048: //IPv4
+        L4 = displayIPHeaders(L3.innerProtocolStart, packetLength, L3.innerProtocolFrame);
+        break;
+    default:
+        break;
+    }
+
+    // Choose function to decipher L4 headers
+    switch(L4.innerProtocolID) {
+    case 1: // ICMP
+        break;
+    case 6: // TCP
+        break;
+    default:
+        break;
+    }
+
+    // Append completely deciphered packet to scrollArea
     ui->packetDisplay->addWidget(packetFrame);
 }
 
