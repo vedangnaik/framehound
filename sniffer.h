@@ -1,4 +1,4 @@
-#ifndef SNIFFER_H
+﻿#ifndef SNIFFER_H
 #define SNIFFER_H
 
 #include <QObject>
@@ -17,20 +17,21 @@
 #include <cstdio>
 
 
-#define BUFSIZE 2048
+#define FRAMESIZE 2048
 
 
 class Sniffer : public QObject
 {
     Q_OBJECT
 public:
-    explicit Sniffer(QObject *parent = nullptr);
+    explicit Sniffer(QString ifrName, QObject *parent = nullptr);
 
 private:
     int socketHandle;
+    QString ifrName;
 
 signals:
-    void sendPacket(uint8_t* packet);
+    void sendPacketToGUI(uint8_t* packet);
 
 public slots:
     void startSniffing();

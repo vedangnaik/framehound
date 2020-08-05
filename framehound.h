@@ -1,9 +1,13 @@
 #ifndef FRAMEHOUND_H
 #define FRAMEHOUND_H
 
+#include "sniffer.h"
+
 #include <QMainWindow>
 #include <QThread>
-#include "sniffer.h"
+#include <QQueue>
+#include <sys/types.h>
+#include <ifaddrs.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class FrameHound; }
@@ -21,9 +25,11 @@ private:
     Ui::FrameHound *ui;
     QThread sniffingThread;
     Sniffer* sn;
+    QQueue<uint8_t*> packetBacklog;
 
 public slots:
-    void decipherPacket(uint8_t* packet);
+    void receivePacketFromSniffer(uint8_t* packet);
+    void startSnifferOnInterface(QString ifrtName);
 
 };
 #endif // FRAMEHOUND_H

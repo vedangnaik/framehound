@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="startSniffing">
     <property name="geometry">
      <rect>
-      <x>198</x>
-      <y>158</y>
+      <x>26</x>
+      <y>26</y>
       <width>91</width>
       <height>33</height>
      </rect>
@@ -37,8 +37,19 @@
      <height>29</height>
     </rect>
    </property>
+   <widget class="QMenu" name="chooseInterfaceMenu">
+    <property name="title">
+     <string>Choose Interface</string>
+    </property>
+   </widget>
+   <addaction name="chooseInterfaceMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionlo">
+   <property name="text">
+    <string>lo</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

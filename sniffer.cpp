@@ -1,8 +1,9 @@
 #include "sniffer.h"
 
-Sniffer::Sniffer(QObject *parent) : QObject(parent)
+Sniffer::Sniffer(QString ifrName, QObject *parent) : QObject(parent)
 {
-//    std::cout << "Sniffer has started" << std::endl;
+    this->ifrName = ifrName;
+    std::cout << "Sniffer is ready to sniff: " << ifrName.toStdString() << std::endl;
 }
 
 void Sniffer::startSniffing() {
@@ -13,10 +14,9 @@ void Sniffer::startSniffing() {
     }
 
     // set interface name and create ifreq struct
-    const char* ifrName = "lo";
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(struct ifreq));
-    strncpy(ifr.ifr_name, ifrName, IFNAMSIZ);
+    strncpy(ifr.ifr_name, this->ifrName.toStdString().c_str(), IFNAMSIZ);
 
     // set interface to promiscuous mode using ioctl
     // first, get flags
@@ -49,10 +49,10 @@ void Sniffer::startSniffing() {
     };
 
     // read incoming packets
-    uint8_t buffer[BUFSIZE];
+    uint8_t buffer[FRAMESIZE];
     while (1) {
-        ssize_t numBytesRecv = recvfrom(this->socketHandle, buffer, BUFSIZE, 0, NULL, NULL);
+        ssize_t numBytesRecv = recvfrom(this->socketHandle, buffer, FRAMESIZE, 0, NULL, NULL);
         std::vector<uint8_t> packet(buffer, buffer + numBytesRecv);
-        emit sendPacket(buffer);
+        emit sendPacketToGUI(buffer);
     }
 }
