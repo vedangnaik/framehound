@@ -31,7 +31,7 @@ private:
     QString ifrName;
 
 signals:
-    void sendPacketToGUI(uint8_t* packet);
+    void sendPacketToGUI(uint8_t* packet, ssize_t packetLength);
 
 public slots:
     void startSniffing();

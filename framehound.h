@@ -6,8 +6,11 @@
 #include <QMainWindow>
 #include <QThread>
 #include <QQueue>
+#include <QLabel>
+
 #include <sys/types.h>
 #include <ifaddrs.h>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class FrameHound; }
@@ -28,7 +31,7 @@ private:
     QQueue<uint8_t*> packetBacklog;
 
 public slots:
-    void receivePacketFromSniffer(uint8_t* packet);
+    void receivePacketFromSniffer(uint8_t* packet, ssize_t packetLength);
     void startSnifferOnInterface(QString ifrtName);
 
 };
