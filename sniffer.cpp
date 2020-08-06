@@ -49,11 +49,12 @@ void Sniffer::startSniffing() {
     };
 
     // read incoming packets
+    uint8_t buffer[FRAMESIZE];
     while (1) {
-        uint8_t buffer[FRAMESIZE];
         ssize_t numBytesRecv = recvfrom(this->socketHandle, buffer, FRAMESIZE, 0, NULL, NULL);
         if (numBytesRecv > 0) {
-            emit sendPacketToGUI(buffer, numBytesRecv);
+            std::vector<uint8_t> cp(buffer, buffer+numBytesRecv);
+            emit sendPacketToPrinter(cp);
         }
     }
 }

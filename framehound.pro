@@ -18,10 +18,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     framehound.cpp \
+    packetprinter.cpp \
     sniffer.cpp
 
 HEADERS += \
     framehound.h \
+    packetprinter.h \
     sniffer.h
 
 FORMS += \

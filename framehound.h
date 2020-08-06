@@ -2,6 +2,7 @@
 #define FRAMEHOUND_H
 
 #include "sniffer.h"
+#include "packetprinter.h"
 
 #include <QMainWindow>
 #include <QThread>
@@ -27,12 +28,15 @@ public:
 private:
     Ui::FrameHound *ui;
     QThread sniffingThread;
+    QThread printingThread;
     Sniffer* sn;
+    PacketPrinter* prn;
     QQueue<uint8_t*> packetBacklog;
 
 public slots:
-    void receivePacketFromSniffer(uint8_t* packet, ssize_t packetLength);
+//    void receivePacketFromSniffer(uint8_t* packet, ssize_t packetLength);
     void startSnifferOnInterface(QString ifrtName);
+    void receivePacketFrameFromPrinter(QFrame* packetFrame);
 
 };
 #endif // FRAMEHOUND_H

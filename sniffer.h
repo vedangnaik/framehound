@@ -31,7 +31,7 @@ private:
     QString ifrName;
 
 signals:
-    void sendPacketToGUI(uint8_t* packet, ssize_t packetLength);
+    void sendPacketToPrinter(std::vector<uint8_t> packet);
 
 public slots:
     void startSniffing();
