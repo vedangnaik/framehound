@@ -52,7 +52,6 @@ void Sniffer::startSniffing() {
     uint8_t buffer[FRAMESIZE];
     while (1) {
         ssize_t numBytesRecv = recvfrom(this->socketHandle, buffer, FRAMESIZE, 0, NULL, NULL);
-        std::vector<uint8_t> packet(buffer, buffer + numBytesRecv);
         emit sendPacketToGUI(buffer, numBytesRecv);
     }
 }
