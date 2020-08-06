@@ -16,6 +16,7 @@
 #include <string>
 #include <cstdio>
 #include <queue>
+#include <unistd.h>
 
 
 #define FRAMESIZE 2048
@@ -27,12 +28,14 @@ class Sniffer : public QObject
 public:
     explicit Sniffer(QObject *parent = nullptr);
     void setIfrName(QString ifrName) { this->ifrName = ifrName; }
-
-    std::queue<std::vector<uint8_t>> packetBacklog;
+    std::queue<std::vector<uint8_t>>& getPacketBacklog() { return this->packetBacklog; }
+    void setStopFlag(bool c) { this->stopFlag = c; }
 
 private:
     int socketHandle;
     QString ifrName;
+    std::queue<std::vector<uint8_t>> packetBacklog;
+    bool stopFlag = false;
 
 signals:
 

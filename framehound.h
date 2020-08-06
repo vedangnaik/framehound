@@ -11,6 +11,7 @@
 
 #include <sys/types.h>
 #include <ifaddrs.h>
+#include <unistd.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -34,6 +35,6 @@ private:
 
 public slots:
     void receivePacketFromManager(std::vector<uint8_t> packet);
-
+//    void stopSniffer();
 };
 #endif // FRAMEHOUND_H

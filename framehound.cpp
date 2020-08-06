@@ -35,6 +35,7 @@ FrameHound::FrameHound(QWidget *parent)
     connect(this->prn, &PacketBacklogManager::sendPacketToGUI, this, &FrameHound::receivePacketFromManager);
     connect(ui->startSniffing, &QPushButton::clicked, this->sni, &Sniffer::startSniffing);
     connect(ui->startSniffing, &QPushButton::clicked, this->prn, &PacketBacklogManager::startManaging);
+    connect(ui->stopSniffing, &QPushButton::clicked, this, [=] { this->sni->setStopFlag(true); });
 }
 
 FrameHound::~FrameHound()
@@ -141,7 +142,7 @@ struct innerProtocolInfo displayIPHeaders(std::vector<uint8_t> IPHdrS, struct in
 
 
 void FrameHound::receivePacketFromManager(std::vector<uint8_t> packet) {
-    std::cout << "received packet from manager" << std::endl;
+//    std::cout << "received packet from manager" << std::endl;
 
     QFrame* packetFrame = new QFrame();
     struct innerProtocolInfo L2 = {0, 0, packetFrame};
@@ -159,3 +160,7 @@ void FrameHound::receivePacketFromManager(std::vector<uint8_t> packet) {
 
     ui->packetDisplay->addWidget(packetFrame);
 }
+
+//void FrameHound::stopSniffer() {
+//    this->sni->setStopFlag(true);
+//}

@@ -6,6 +6,8 @@ Sniffer::Sniffer(QObject *parent) : QObject(parent)
 }
 
 void Sniffer::startSniffing() {
+    this->setStopFlag(false);
+
     std::cout << "Sniffer has started sniffing at " << this->ifrName.toStdString() << std::endl;
     this->socketHandle = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_IP));
     if (this->socketHandle == -1) {
@@ -50,11 +52,14 @@ void Sniffer::startSniffing() {
     // read incoming packets
     uint8_t buffer[FRAMESIZE];
     while (1) {
+        if (this->stopFlag) { break; }
         ssize_t numBytesRecv = recvfrom(this->socketHandle, buffer, FRAMESIZE, 0, NULL, NULL);
         if (numBytesRecv > 0) {
             std::vector<uint8_t> cp(buffer, buffer+numBytesRecv);
             this->packetBacklog.push(cp);
-            std::cout << "pushed packet to queue" << std::endl;
+//            std::cout << "pushed packet to queue" << std::endl;
         }
     }
+
+    close(this->socketHandle);
 }
