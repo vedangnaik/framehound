@@ -13,20 +13,20 @@
 #include <time.h>
 
 
-class PacketPrinter : public QObject
+class PacketBacklogManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PacketPrinter(Sniffer* snifferToPrint, QObject *parent = nullptr);
+    explicit PacketBacklogManager(Sniffer* snifferToPrint, QObject *parent = nullptr);
 
 private:
     Sniffer* sn;
 
 signals:
-    void sendPacketFrameToGUI(QFrame* packetFrame);
+    void sendPacketToGUI(std::vector<uint8_t> packet);
 
 public slots:
-    void startPrinting();
+    void startManaging();
 };
 
 #endif // PACKETPRINTER_H

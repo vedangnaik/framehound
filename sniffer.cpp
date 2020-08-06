@@ -54,7 +54,7 @@ void Sniffer::startSniffing() {
         if (numBytesRecv > 0) {
             std::vector<uint8_t> cp(buffer, buffer+numBytesRecv);
             this->packetBacklog.push(cp);
-//            emit sendPacketToPrinter(cp);
+            std::cout << "pushed packet to queue" << std::endl;
         }
     }
 }

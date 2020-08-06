@@ -2,7 +2,7 @@
 #define FRAMEHOUND_H
 
 #include "sniffer.h"
-#include "packetprinter.h"
+#include "packetbacklogmanager.h"
 
 #include <QMainWindow>
 #include <QThread>
@@ -30,11 +30,10 @@ private:
     QThread sniffingThread;
     QThread printingThread;
     Sniffer* sni;
-    PacketPrinter* prn;
+    PacketBacklogManager* prn;
 
 public slots:
-//    void receivePacketFromSniffer(uint8_t* packet, ssize_t packetLength);
-    void receivePacketFrameFromPrinter(QFrame* packetFrame);
+    void receivePacketFromManager(std::vector<uint8_t> packet);
 
 };
 #endif // FRAMEHOUND_H
