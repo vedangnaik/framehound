@@ -40,7 +40,7 @@ private:
 signals:
 
 public slots:
-    void startSniffing();
+    void sniff();
 };
 
 #endif // SNIFFER_H

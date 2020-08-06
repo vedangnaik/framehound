@@ -7,7 +7,9 @@ PacketBacklogManager::PacketBacklogManager(Sniffer* snifferToPrint, QObject *par
 }
 
 void PacketBacklogManager::startManaging() {
+    this->setStopFlag(false);
     while (1) {
+        if (this->stopFlag) { break; }
         std::queue<std::vector<uint8_t>>& bklg = this->sn->getPacketBacklog();
         if (bklg.size() == 0) {
             // sleep 1 second between checking for new packets
@@ -18,7 +20,6 @@ void PacketBacklogManager::startManaging() {
             std::vector<uint8_t> packet = bklg.front();
             bklg.pop();
             emit sendPacketToGUI(packet);
-//            std::cout << "sent packet to manager" << std::endl;
         }
     }
 }

@@ -5,8 +5,9 @@
 #include "packetbacklogmanager.h"
 
 #include <QMainWindow>
+#include <QCloseEvent>
+#include <QMessageBox>
 #include <QThread>
-#include <QQueue>
 #include <QLabel>
 
 #include <sys/types.h>
@@ -29,12 +30,12 @@ public:
 private:
     Ui::FrameHound *ui;
     QThread sniffingThread;
-    QThread printingThread;
+    QThread managingThread;
     Sniffer* sni;
-    PacketBacklogManager* prn;
+    PacketBacklogManager* mng;
 
 public slots:
     void receivePacketFromManager(std::vector<uint8_t> packet);
-//    void stopSniffer();
+    void closeEvent(QCloseEvent* event);
 };
 #endif // FRAMEHOUND_H

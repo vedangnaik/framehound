@@ -5,7 +5,7 @@ Sniffer::Sniffer(QObject *parent) : QObject(parent)
     std::cout << "Sniffer is ready to sniff" << std::endl;
 }
 
-void Sniffer::startSniffing() {
+void Sniffer::sniff() {
     this->setStopFlag(false);
 
     std::cout << "Sniffer has started sniffing at " << this->ifrName.toStdString() << std::endl;

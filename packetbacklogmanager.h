@@ -18,9 +18,11 @@ class PacketBacklogManager : public QObject
     Q_OBJECT
 public:
     explicit PacketBacklogManager(Sniffer* snifferToPrint, QObject *parent = nullptr);
+    void setStopFlag(bool c) { this->stopFlag = c; }
 
 private:
     Sniffer* sn;
+    bool stopFlag = false;
 
 signals:
     void sendPacketToGUI(std::vector<uint8_t> packet);

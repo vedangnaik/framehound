@@ -23,19 +23,24 @@ FrameHound::FrameHound(QWidget *parent)
     }
     freeifaddrs(ifa);
 
+    // start packet sniffer on separate thread
     this->sni = new Sniffer();
     this->sni->moveToThread(&this->sniffingThread);
     this->sniffingThread.start();
 
-    // Start packet printer on separate thread
-    this->prn = new PacketBacklogManager(this->sni);
-    this->prn->moveToThread(&this->printingThread);
-    this->printingThread.start();
+    // Start packet backlog manager on seperate thread
+    this->mng = new PacketBacklogManager(this->sni);
+    this->mng->moveToThread(&this->managingThread);
+    this->managingThread.start();
 
-    connect(this->prn, &PacketBacklogManager::sendPacketToGUI, this, &FrameHound::receivePacketFromManager);
-    connect(ui->startSniffing, &QPushButton::clicked, this->sni, &Sniffer::startSniffing);
-    connect(ui->startSniffing, &QPushButton::clicked, this->prn, &PacketBacklogManager::startManaging);
-    connect(ui->stopSniffing, &QPushButton::clicked, this, [=] { this->sni->setStopFlag(true); });
+    // connect various signals to functions
+    connect(this->mng, &PacketBacklogManager::sendPacketToGUI, this, &FrameHound::receivePacketFromManager);
+    connect(ui->startSniffing, &QPushButton::clicked, this->sni, &Sniffer::sniff);
+    connect(ui->startSniffing, &QPushButton::clicked, this->mng, &PacketBacklogManager::startManaging);
+    connect(ui->stopSniffing, &QPushButton::clicked, this, [=] {
+        this->sni->setStopFlag(true);
+        this->mng->setStopFlag(true);
+    });
 }
 
 FrameHound::~FrameHound()
@@ -142,8 +147,6 @@ struct innerProtocolInfo displayIPHeaders(std::vector<uint8_t> IPHdrS, struct in
 
 
 void FrameHound::receivePacketFromManager(std::vector<uint8_t> packet) {
-//    std::cout << "received packet from manager" << std::endl;
-
     QFrame* packetFrame = new QFrame();
     struct innerProtocolInfo L2 = {0, 0, packetFrame};
     struct innerProtocolInfo L3;
@@ -161,6 +164,27 @@ void FrameHound::receivePacketFromManager(std::vector<uint8_t> packet) {
     ui->packetDisplay->addWidget(packetFrame);
 }
 
-//void FrameHound::stopSniffer() {
-//    this->sni->setStopFlag(true);
-//}
+void FrameHound::closeEvent(QCloseEvent* event) {
+    QMessageBox msgBox;
+    msgBox.setText("Do you want to quit?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int res = msgBox.exec();
+    if (res == QMessageBox::Yes) {
+        // tell sniffer, manager to stop
+        this->sni->setStopFlag(true);
+        this->mng->setStopFlag(true);
+        // wait 2 seconds for them to finish processing backlog packets
+        struct timespec ts = { 2, 0 }; nanosleep(&ts, NULL);
+        // delete them
+        delete this->sni;
+        delete this->mng;
+        // quit the threads
+        this->sniffingThread.exit();
+        this->managingThread.exit();
+        // close the GUI
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
