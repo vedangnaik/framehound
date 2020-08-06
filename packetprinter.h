@@ -1,27 +1,31 @@
 #ifndef PACKETPRINTER_H
 #define PACKETPRINTER_H
 
+#include "sniffer.h"
+
 #include <QObject>
 #include <QQueue>
 #include <QLabel>
 #include <QHBoxLayout>
+
 #include <queue>
 #include <iostream>
+#include <time.h>
+
 
 class PacketPrinter : public QObject
 {
     Q_OBJECT
 public:
-    explicit PacketPrinter(QObject *parent = nullptr);
+    explicit PacketPrinter(Sniffer* snifferToPrint, QObject *parent = nullptr);
 
 private:
-    std::queue<std::vector<uint8_t>> packetBacklog;
+    Sniffer* sn;
 
 signals:
     void sendPacketFrameToGUI(QFrame* packetFrame);
 
 public slots:
-    void receivePacketFromSniffer(std::vector<u_int8_t> packet);
     void startPrinting();
 };
 

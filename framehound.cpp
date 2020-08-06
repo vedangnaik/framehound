@@ -19,16 +19,22 @@ FrameHound::FrameHound(QWidget *parent)
     for (curr = ifa; curr != NULL && curr->ifa_addr->sa_family == AF_PACKET; curr = curr->ifa_next) {
         QString ifrName = QString(curr->ifa_name);
         QAction* act = ui->chooseInterfaceMenu->addAction(ifrName);
-        connect(act, &QAction::triggered, this, [=]{ startSnifferOnInterface(ifrName); });
+        connect(act, &QAction::triggered, this, [=]{ this->sni->setIfrName(ifrName); });
     }
     freeifaddrs(ifa);
 
+    this->sni = new Sniffer();
+    this->sni->moveToThread(&this->sniffingThread);
+    this->sniffingThread.start();
+
     // Start packet printer on separate thread
-    this->prn = new PacketPrinter();
+    this->prn = new PacketPrinter(this->sni);
     this->prn->moveToThread(&this->printingThread);
     this->printingThread.start();
 
     connect(this->prn, &PacketPrinter::sendPacketFrameToGUI, this, &FrameHound::receivePacketFrameFromPrinter);
+    connect(ui->startSniffing, &QPushButton::clicked, this->sni, &Sniffer::startSniffing);
+    connect(ui->startSniffing, &QPushButton::clicked, this->prn, &PacketPrinter::startPrinting);
 }
 
 FrameHound::~FrameHound()
@@ -127,15 +133,6 @@ FrameHound::~FrameHound()
 //    // Append completely deciphered packet to scrollArea
 //    ui->packetDisplay->addWidget(packetFrame);
 //}
-
-void FrameHound::startSnifferOnInterface(QString ifrName) {
-    this->sn = new Sniffer(ifrName);
-    this->sn->moveToThread(&this->sniffingThread);
-    connect(this->sn, &Sniffer::sendPacketToPrinter, this->prn, &PacketPrinter::receivePacketFromSniffer);
-    connect(ui->startSniffing, &QPushButton::clicked, this->sn, &Sniffer::startSniffing);
-    connect(ui->startSniffing, &QPushButton::clicked, this->prn, &PacketPrinter::startPrinting);
-    sniffingThread.start();
-}
 
 void FrameHound::receivePacketFrameFromPrinter(QFrame* packetFrame) {
     std::cout << "adding packet" << std::endl;

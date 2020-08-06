@@ -1,13 +1,12 @@
 #include "sniffer.h"
 
-Sniffer::Sniffer(QString ifrName, QObject *parent) : QObject(parent)
+Sniffer::Sniffer(QObject *parent) : QObject(parent)
 {
-    this->ifrName = ifrName;
-    std::cout << "Sniffer is ready to sniff: " << ifrName.toStdString() << std::endl;
+    std::cout << "Sniffer is ready to sniff" << std::endl;
 }
 
 void Sniffer::startSniffing() {
-    std::cout << "Sniffer has started sniffing" << std::endl;
+    std::cout << "Sniffer has started sniffing at " << this->ifrName.toStdString() << std::endl;
     this->socketHandle = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_IP));
     if (this->socketHandle == -1) {
         perror("error opening socket\n");
@@ -54,7 +53,8 @@ void Sniffer::startSniffing() {
         ssize_t numBytesRecv = recvfrom(this->socketHandle, buffer, FRAMESIZE, 0, NULL, NULL);
         if (numBytesRecv > 0) {
             std::vector<uint8_t> cp(buffer, buffer+numBytesRecv);
-            emit sendPacketToPrinter(cp);
+            this->packetBacklog.push(cp);
+//            emit sendPacketToPrinter(cp);
         }
     }
 }

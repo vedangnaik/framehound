@@ -1,15 +1,14 @@
 #include "packetprinter.h"
 
-PacketPrinter::PacketPrinter(QObject *parent) : QObject(parent)
+PacketPrinter::PacketPrinter(Sniffer* snifferToPrint, QObject *parent) : QObject(parent)
 {
     std::cout << "Printer ready to print" << std::endl;
+    this->sn = snifferToPrint;
 }
 
-void PacketPrinter::receivePacketFromSniffer(std::vector<uint8_t> packet) {
-    this->packetBacklog.push(packet);
-}
 
 // HELPERS
+
 struct innerProtocolInfo {
     uint16_t innerProtocolID;
     size_t offsetFromStart;
@@ -47,20 +46,27 @@ struct innerProtocolInfo displayEthernetHeaders(std::vector<uint8_t> ethHdrS, st
     return ret;
 }
 
+// END HELPERS
+
+
 void PacketPrinter::startPrinting() {
     while (1) {
-        std::cout << "printing packet" << std::endl;
-        if (this->packetBacklog.size() == 0) {continue;}
-        std::vector<uint8_t> packet = this->packetBacklog.front();
+        if (this->sn->packetBacklog.size() == 0) {
+            // sleep 1 second between checking for new packets
+            struct timespec ts = { 1, 0 };
+            nanosleep(&ts, NULL);
+        }
+        else {
+            std::vector<uint8_t> packet = this->sn->packetBacklog.front();
 
-        QFrame* packetFrame = new QFrame();
-        struct innerProtocolInfo L2 = {0, 0, packetFrame};
-        struct innerProtocolInfo L3;
+            QFrame* packetFrame = new QFrame();
+            struct innerProtocolInfo L2 = {0, 0, packetFrame};
+            struct innerProtocolInfo L3;
 
-        L3 = displayEthernetHeaders(packet, L2);
+            L3 = displayEthernetHeaders(packet, L2);
 
-        this->packetBacklog.pop();
-
-        emit sendPacketFrameToGUI(packetFrame);
+            this->sn->packetBacklog.pop();
+            emit sendPacketFrameToGUI(packetFrame);
+        }
     }
 }

@@ -29,13 +29,11 @@ private:
     Ui::FrameHound *ui;
     QThread sniffingThread;
     QThread printingThread;
-    Sniffer* sn;
+    Sniffer* sni;
     PacketPrinter* prn;
-    QQueue<uint8_t*> packetBacklog;
 
 public slots:
 //    void receivePacketFromSniffer(uint8_t* packet, ssize_t packetLength);
-    void startSnifferOnInterface(QString ifrtName);
     void receivePacketFrameFromPrinter(QFrame* packetFrame);
 
 };
