@@ -12,14 +12,18 @@ void PacketBacklogManager::startManaging() {
         if (this->stopFlag) { break; }
         std::queue<std::vector<uint8_t>>& bklg = this->sn->getPacketBacklog();
         if (bklg.size() == 0) {
-            // sleep 1 second between checking for new packets
             struct timespec ts = { 1, 0 };
             nanosleep(&ts, NULL);
+            continue;
         }
-        else {
-            std::vector<uint8_t> packet = bklg.front();
-            bklg.pop();
-            emit sendPacketToGUI(packet);
-        }
+
+        std::vector<uint8_t> packet = bklg.front();
+        bklg.pop();
+
+        struct innerProtocolInfo inf = {0, 0};
+        std::vector<std::pair<std::string, std::string>> L2;
+        L2 = interpretEthernetHeaders(packet, inf);
+
+        emit sendProtocolsToGUI(L2);
     }
 }

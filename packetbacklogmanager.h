@@ -12,6 +12,8 @@
 #include <iostream>
 #include <time.h>
 
+#include "protocols.h"
+
 
 class PacketBacklogManager : public QObject
 {
@@ -25,7 +27,7 @@ private:
     bool stopFlag = false;
 
 signals:
-    void sendPacketToGUI(std::vector<uint8_t> packet);
+    void sendProtocolsToGUI(std::vector<std::pair<std::string, std::string>> L2);
 
 public slots:
     void startManaging();

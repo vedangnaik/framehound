@@ -36,7 +36,7 @@ private:
     PacketBacklogManager* mng;
 
 public slots:
-    void receivePacketFromManager(std::vector<uint8_t> packet);
+    void receiveProtocolsFromManager(std::vector<std::pair<std::string, std::string>> L2);
     void closeEvent(QCloseEvent* event);
 };
 
