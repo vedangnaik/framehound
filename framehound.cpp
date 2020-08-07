@@ -51,31 +51,31 @@ FrameHound::~FrameHound()
 }
 
 
-void FrameHound::receiveProtocolsFromManager(std::vector<std::pair<std::string, std::string>> L2) {
-    // general purpose variables
-    std::stringstream ss;
-    QString explanation;
+void FrameHound::receiveProtocolsFromManager(
+        std::vector<std::pair<std::string, std::string>> L2,
+        std::vector<std::pair<std::string, std::string>> L3)
+{
+    // Make data frame. TODO: Add length inside
+    QFrame* dataFrame = new QFrame();
 
+    // Make L4 frame
+    //TODO
 
-    // Make L2 protocol frame
-    QFrame* L2Frame = new QFrame();
-    for (auto const& x: L2) {
-        ss << x.first << x.second << "\n";
+    // Make L3 frame
+    std::stringstream L3ss;
+    for (auto const& x: L3) {
+        L3ss << x.first << x.second << "\n";
     }
-    explanation = QString::fromStdString(ss.str());
-    QFrame* L3Frame = packetFrameMaker(L2Frame, explanation);
+    QString L3intrp = QString::fromStdString(L3ss.str());
+    QFrame* L3Frame = packetFrameMaker(L3intrp, dataFrame);
 
-    // Make L3 protocol frame
-//    QFrame* L3Frame = packetFrameMaker(L2Frame, explanation);
-//    QString L3Explanation;
-//    for (auto const& x: L3) {
-//        ss << x.first << x.second << "\n";
-//    }
-//    explanation = QString::fromStdString(ss.str());
-
-//    // Make L4 protocol frame
-//    QFrame* L4Frame = packetFrameMaker(L3Frame, explanation);
-
+    // Make L2 frame
+    std::stringstream L2ss;
+    for (auto const& x: L2) {
+        L2ss << x.first << x.second << "\n";
+    }
+    QString L2intrp = QString::fromStdString(L2ss.str());
+    QFrame* L2Frame = packetFrameMaker(L2intrp, L3Frame);
 
     // Append completed frame to scrollArea
     ui->packetDisplay->addWidget(L2Frame);
@@ -108,15 +108,15 @@ void FrameHound::closeEvent(QCloseEvent* event) {
 }
 
 
-QFrame* packetFrameMaker(QFrame* outerFrame, QString explanation) {
+QFrame* packetFrameMaker(QString explanation, QFrame* innerFrame) {
+    QFrame* outerFrame = new QFrame();
     outerFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
     QHBoxLayout* hl = new QHBoxLayout();
     QLabel* ethHdrExp = new QLabel(explanation);
-    QFrame* innerFrame = new QFrame();
     innerFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     hl->addWidget(ethHdrExp);
     hl->addWidget(innerFrame);
     outerFrame->setLayout(hl);
 
-    return innerFrame;
+    return outerFrame;
 }

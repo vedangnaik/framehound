@@ -27,7 +27,9 @@ private:
     bool stopFlag = false;
 
 signals:
-    void sendProtocolsToGUI(std::vector<std::pair<std::string, std::string>> L2);
+    void sendProtocolsToGUI(
+            std::vector<std::pair<std::string, std::string>> L2,
+            std::vector<std::pair<std::string, std::string>> L3);
 
 public slots:
     void startManaging();

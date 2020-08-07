@@ -36,10 +36,12 @@ private:
     PacketBacklogManager* mng;
 
 public slots:
-    void receiveProtocolsFromManager(std::vector<std::pair<std::string, std::string>> L2);
+    void receiveProtocolsFromManager(
+            std::vector<std::pair<std::string, std::string>> L2,
+            std::vector<std::pair<std::string, std::string>> L3);
     void closeEvent(QCloseEvent* event);
 };
 
-QFrame* packetFrameMaker(QFrame* outerFrame, QString explanation);
+QFrame* packetFrameMaker(QString explanation, QFrame* innerFrame);
 
 #endif // FRAMEHOUND_H
