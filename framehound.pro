@@ -16,14 +16,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    L2.cpp \
+    L3.cpp \
     main.cpp \
     framehound.cpp \
     packetbacklogmanager.cpp \
     sniffer.cpp
 
 HEADERS += \
+    L2.h \
+    L3.h \
     framehound.h \
     packetbacklogmanager.h \
+    protocols.h \
     sniffer.h
 
 FORMS += \

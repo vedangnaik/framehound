@@ -3,6 +3,7 @@
 
 #include "sniffer.h"
 #include "packetbacklogmanager.h"
+#include "protocols.h"
 
 #include <QMainWindow>
 #include <QCloseEvent>
@@ -38,4 +39,5 @@ public slots:
     void receivePacketFromManager(std::vector<uint8_t> packet);
     void closeEvent(QCloseEvent* event);
 };
+
 #endif // FRAMEHOUND_H
