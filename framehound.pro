@@ -20,14 +20,14 @@ SOURCES += \
     L3.cpp \
     main.cpp \
     framehound.cpp \
-    packetbacklogmanager.cpp \
+    packetinterpreter.cpp \
     sniffer.cpp
 
 HEADERS += \
     L2.h \
     L3.h \
     framehound.h \
-    packetbacklogmanager.h \
+    packetinterpreter.h \
     protocols.h \
     sniffer.h
 

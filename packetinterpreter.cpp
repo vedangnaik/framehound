@@ -1,12 +1,12 @@
-#include "packetbacklogmanager.h"
+#include "packetinterpreter.h"
 
-PacketBacklogManager::PacketBacklogManager(Sniffer* snifferToPrint, QObject *parent) : QObject(parent)
+PacketInterpreter::PacketInterpreter(Sniffer* snifferToPrint, QObject *parent) : QObject(parent)
 {
     std::cout << "Printer ready to print" << std::endl;
     this->sn = snifferToPrint;
 }
 
-void PacketBacklogManager::startManaging() {
+void PacketInterpreter::startInterpreting() {
     this->setStopFlag(false);
     while (1) {
         if (this->stopFlag) { break; }

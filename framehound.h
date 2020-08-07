@@ -2,7 +2,7 @@
 #define FRAMEHOUND_H
 
 #include "sniffer.h"
-#include "packetbacklogmanager.h"
+#include "packetinterpreter.h"
 #include "protocols.h"
 
 #include <QMainWindow>
@@ -33,7 +33,7 @@ private:
     QThread sniffingThread;
     QThread managingThread;
     Sniffer* sni;
-    PacketBacklogManager* mng;
+    PacketInterpreter* mng;
 
 public slots:
     void receiveProtocolsFromManager(

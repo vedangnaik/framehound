@@ -15,11 +15,11 @@
 #include "protocols.h"
 
 
-class PacketBacklogManager : public QObject
+class PacketInterpreter : public QObject
 {
     Q_OBJECT
 public:
-    explicit PacketBacklogManager(Sniffer* snifferToPrint, QObject *parent = nullptr);
+    explicit PacketInterpreter(Sniffer* snifferToPrint, QObject *parent = nullptr);
     void setStopFlag(bool c) { this->stopFlag = c; }
 
 private:
@@ -32,7 +32,7 @@ signals:
             std::vector<std::pair<std::string, std::string>> L3);
 
 public slots:
-    void startManaging();
+    void startInterpreting();
 };
 
 #endif // PACKETPRINTER_H

@@ -30,14 +30,14 @@ FrameHound::FrameHound(QWidget *parent)
     this->sniffingThread.start();
 
     // Start packet backlog manager on seperate thread
-    this->mng = new PacketBacklogManager(this->sni);
+    this->mng = new PacketInterpreter(this->sni);
     this->mng->moveToThread(&this->managingThread);
     this->managingThread.start();
 
     // connect various signals to functions
-    connect(this->mng, &PacketBacklogManager::sendProtocolsToGUI, this, &FrameHound::receiveProtocolsFromManager);
+    connect(this->mng, &PacketInterpreter::sendProtocolsToGUI, this, &FrameHound::receiveProtocolsFromManager);
     connect(ui->startSniffing, &QPushButton::clicked, this->sni, &Sniffer::sniff);
-    connect(ui->startSniffing, &QPushButton::clicked, this->mng, &PacketBacklogManager::startManaging);
+    connect(ui->startSniffing, &QPushButton::clicked, this->mng, &PacketInterpreter::startInterpreting);
     connect(ui->stopSniffing, &QPushButton::clicked, this, [=] {
         this->sni->setStopFlag(true);
         this->mng->setStopFlag(true);
