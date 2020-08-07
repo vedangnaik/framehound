@@ -51,24 +51,42 @@ FrameHound::~FrameHound()
 
 
 void FrameHound::receivePacketFromManager(std::vector<uint8_t> packet) {
-    QFrame* L2Frame = new QFrame();
-    L2Frame->setFrameStyle(QFrame::Box | QFrame::Plain);
-    QHBoxLayout* hl = new QHBoxLayout();
-    QLabel* ethHdrExp = new QLabel();
-    QFrame* L3Frame = new QFrame();
-    L3Frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    hl->addWidget(ethHdrExp);
-    hl->addWidget(L3Frame);
-    L2Frame->setLayout(hl);
-
-    struct innerProtocolInfo inf;
+    // general purpose variables
+    struct innerProtocolInfo inf; inf.innerProtocolID = 0;
     std::stringstream ss;
-    std::vector<std::pair<std::string, std::string>> ethHdr = interpretEthernetHeaders(packet, inf);
-    for (auto const& x: ethHdr) {
+    QString explanation;
+
+
+    // Make L2 protocol frame
+    std::vector<std::pair<std::string, std::string>> (*protocolFunc)(std::vector<uint8_t>&, struct innerProtocolInfo&);
+    QFrame* L2Frame = new QFrame();
+    switch (inf.innerProtocolID) {
+    case 0: // test ID for ethernet
+        protocolFunc = &interpretEthernetHeaders;
+    }
+    for (auto const& x: (*protocolFunc)(packet, inf)) {
         ss << x.first << x.second << "\n";
     }
-    ethHdrExp->setText(QString::fromStdString(ss.str()));
+    explanation = QString::fromStdString(ss.str());
 
+    // Make L3 protocol frame
+    QFrame* L3Frame = packetFrameMaker(L2Frame, explanation);
+    QString L3Explanation;
+    switch(inf.innerProtocolID) {
+    case 2048: // IPv4
+        // protocolFunc = &interpretIPv4Headers;
+        break;
+    }
+    for (auto const& x: (*protocolFunc)(packet, inf)) {
+        ss << x.first << x.second << "\n";
+    }
+    explanation = QString::fromStdString(ss.str());
+
+    // Make L4 protocol frame
+    QFrame* L4Frame = packetFrameMaker(L3Frame, explanation);
+
+
+    // Append completed frame to scrollArea
     ui->packetDisplay->addWidget(L2Frame);
 }
 
@@ -96,4 +114,18 @@ void FrameHound::closeEvent(QCloseEvent* event) {
     } else {
         event->ignore();
     }
+}
+
+
+QFrame* packetFrameMaker(QFrame* outerFrame, QString explanation) {
+    outerFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
+    QHBoxLayout* hl = new QHBoxLayout();
+    QLabel* ethHdrExp = new QLabel(explanation);
+    QFrame* innerFrame = new QFrame();
+    innerFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    hl->addWidget(ethHdrExp);
+    hl->addWidget(innerFrame);
+    outerFrame->setLayout(hl);
+
+    return innerFrame;
 }

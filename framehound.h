@@ -40,4 +40,6 @@ public slots:
     void closeEvent(QCloseEvent* event);
 };
 
+QFrame* packetFrameMaker(QFrame* outerFrame, QString explanation);
+
 #endif // FRAMEHOUND_H
