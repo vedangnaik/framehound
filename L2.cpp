@@ -1,36 +1,31 @@
 #include "L2.h"
 
 
-struct innerProtocolInfo interpretEthernetHeaders(
-        std::vector<uint8_t> pkt,
-        struct innerProtocolInfo inf)
-{
-    QFrame* ethQFrame = inf.innerProtocolFrame;
+ std::vector<std::pair<std::string, std::string>> interpretEthernetHeaders(std::vector<uint8_t>& pkt, struct innerProtocolInfo& inf) {
+    std::vector<std::pair<std::string, std::string>> ethHdr;
 
-    ethQFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
-    QHBoxLayout* hl = new QHBoxLayout();
-    QLabel* ethHdrExp = new QLabel();
-    QFrame* innerProtocolFrame = new QFrame();
-    innerProtocolFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    hl->addWidget(ethHdrExp);
-    hl->addWidget(innerProtocolFrame);
-    ethQFrame->setLayout(hl);
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    for (int i = 0; i < 5; i++) {
+        ss << std::setw(2) << static_cast<unsigned>(pkt[i]) << ":";
+    }
+    ss << std::setw(2) << static_cast<unsigned>(pkt[5]);
+    ethHdr.push_back(std::pair<std::string, std::string>(
+                         "Dst MAC Address: ", ss.str()));
 
-    char dstMACaddr[20];
-    sprintf(dstMACaddr, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
-            pkt[0], pkt[1], pkt[2], pkt[3], pkt[4], pkt[5]);
-    char srcMACaddr[20];
-    sprintf(srcMACaddr, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
-            pkt[6], pkt[7], pkt[8], pkt[9], pkt[10], pkt[11]);
+    ss.str(""); ss.clear();
+    for (int i = 6; i < 11; i++) {
+        ss << std::setw(2) << static_cast<unsigned>(pkt[i]) << ":";
+    }
+    ss << std::setw(2) << static_cast<unsigned>(pkt[11]);
+    ethHdr.push_back(std::pair<std::string, std::string>(
+                         "Src MAC Address: ", ss.str()));
+
     uint16_t innerProtocolID = (pkt[12] * 256) + pkt[13];
+    ethHdr.push_back(std::pair<std::string, std::string>(
+                         "Inner Protocol: ", std::to_string(innerProtocolID)));
 
-    ethHdrExp->setText("Dst MAC Address: " + QString(dstMACaddr) + "\n" +
-                    "Src MAC Address: " + QString(srcMACaddr) + "\n" +
-                    "Inner Protocol: " + QString::number(innerProtocolID));
-
-    struct innerProtocolInfo ret;
-    ret.innerProtocolID = innerProtocolID;
-    ret.offsetFromStart = 14;
-    ret.innerProtocolFrame = innerProtocolFrame;
-    return ret;
+    inf.innerProtocolID = innerProtocolID;
+    inf.offsetFromStart += 14;
+    return ethHdr;
 }

@@ -51,21 +51,25 @@ FrameHound::~FrameHound()
 
 
 void FrameHound::receivePacketFromManager(std::vector<uint8_t> packet) {
-    QFrame* packetFrame = new QFrame();
-    struct innerProtocolInfo L2 = {0, 0, packetFrame};
-    struct innerProtocolInfo L3;
-    struct innerProtocolInfo L4;
+    QFrame* L2Frame = new QFrame();
+    L2Frame->setFrameStyle(QFrame::Box | QFrame::Plain);
+    QHBoxLayout* hl = new QHBoxLayout();
+    QLabel* ethHdrExp = new QLabel();
+    QFrame* L3Frame = new QFrame();
+    L3Frame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    hl->addWidget(ethHdrExp);
+    hl->addWidget(L3Frame);
+    L2Frame->setLayout(hl);
 
-    L3 = interpretEthernetHeaders(packet, L2);
-    switch(L3.innerProtocolID) {
-    case 2048: //IPv4
-        L4 = displayIPHeaders(packet, L3);
-        break;
-    default:
-        break;
+    struct innerProtocolInfo inf;
+    std::stringstream ss;
+    std::vector<std::pair<std::string, std::string>> ethHdr = interpretEthernetHeaders(packet, inf);
+    for (auto const& x: ethHdr) {
+        ss << x.first << x.second << "\n";
     }
+    ethHdrExp->setText(QString::fromStdString(ss.str()));
 
-    ui->packetDisplay->addWidget(packetFrame);
+    ui->packetDisplay->addWidget(L2Frame);
 }
 
 
