@@ -1,13 +1,14 @@
 #include "sniffer.h"
 
-Sniffer::Sniffer(QString ifrName, QObject *parent) : QObject(parent)
+Sniffer::Sniffer(QObject *parent) : QObject(parent)
 {
-    this->ifrName = ifrName;
-    std::cout << "Sniffer is ready to sniff: " << ifrName.toStdString() << std::endl;
+    std::cout << "Sniffer is ready to sniff" << std::endl;
 }
 
-void Sniffer::startSniffing() {
-    std::cout << "Sniffer has started sniffing" << std::endl;
+void Sniffer::sniff() {
+    this->setStopFlag(false);
+
+    std::cout << "Sniffer has started sniffing at " << this->ifrName.toStdString() << std::endl;
     this->socketHandle = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_IP));
     if (this->socketHandle == -1) {
         perror("error opening socket\n");
@@ -51,8 +52,14 @@ void Sniffer::startSniffing() {
     // read incoming packets
     uint8_t buffer[FRAMESIZE];
     while (1) {
+        if (this->stopFlag) { break; }
         ssize_t numBytesRecv = recvfrom(this->socketHandle, buffer, FRAMESIZE, 0, NULL, NULL);
-        std::vector<uint8_t> packet(buffer, buffer + numBytesRecv);
-        emit sendPacketToGUI(buffer, numBytesRecv);
+        if (numBytesRecv > 0) {
+            std::vector<uint8_t> cp(buffer, buffer+numBytesRecv);
+            this->packetBacklog.push(cp);
+//            std::cout << "pushed packet to queue" << std::endl;
+        }
     }
+
+    close(this->socketHandle);
 }

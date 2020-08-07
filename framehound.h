@@ -2,14 +2,18 @@
 #define FRAMEHOUND_H
 
 #include "sniffer.h"
+#include "packetinterpreter.h"
+#include "protocols.h"
 
 #include <QMainWindow>
+#include <QCloseEvent>
+#include <QMessageBox>
 #include <QThread>
-#include <QQueue>
 #include <QLabel>
 
 #include <sys/types.h>
 #include <ifaddrs.h>
+#include <unistd.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -27,12 +31,17 @@ public:
 private:
     Ui::FrameHound *ui;
     QThread sniffingThread;
-    Sniffer* sn;
-    QQueue<uint8_t*> packetBacklog;
+    QThread managingThread;
+    Sniffer* sni;
+    PacketInterpreter* mng;
 
 public slots:
-    void receivePacketFromSniffer(uint8_t* packet, ssize_t packetLength);
-    void startSnifferOnInterface(QString ifrtName);
-
+    void receiveProtocolsFromManager(
+            std::vector<std::pair<std::string, std::string>> L2,
+            std::vector<std::pair<std::string, std::string>> L3);
+    void closeEvent(QCloseEvent* event);
 };
+
+QFrame* packetFrameMaker(QString explanation, QFrame* innerFrame);
+
 #endif // FRAMEHOUND_H
