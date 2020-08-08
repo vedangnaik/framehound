@@ -30,7 +30,8 @@ signals:
     void sendProtocolsToGUI(
             std::vector<std::pair<std::string, std::string>> L2,
             std::vector<std::pair<std::string, std::string>> L3,
-            std::vector<std::pair<std::string, std::string>> L4);
+            std::vector<std::pair<std::string, std::string>> L4,
+            size_t dataLen);
 
 public slots:
     void startInterpreting();

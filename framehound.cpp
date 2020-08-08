@@ -10,6 +10,7 @@ FrameHound::FrameHound(QWidget *parent)
     ui->setupUi(this);
     qRegisterMetaType<std::vector<std::pair<std::string, std::string>>>(
                 "std::vector<std::pair<std::string, std::string>>");
+    qRegisterMetaType<size_t>("size_t");
 
     // Populate dropdown with all interfaces
     struct ifaddrs* ifa;
@@ -54,10 +55,12 @@ FrameHound::~FrameHound()
 void FrameHound::receiveProtocolsFromManager(
         std::vector<std::pair<std::string, std::string>> L2,
         std::vector<std::pair<std::string, std::string>> L3,
-        std::vector<std::pair<std::string, std::string>> L4)
+        std::vector<std::pair<std::string, std::string>> L4,
+        size_t dataLen)
 {
     // Make data frame. TODO: Add length inside
-    QFrame* dataFrame = new QFrame();
+    QString dataExp = QString::number(dataLen) + " bytes of data";
+    QFrame* dataFrame = packetFrameMaker(dataExp, NULL);
 
     // Make L4 frame
     std::stringstream L4ss;
@@ -119,9 +122,12 @@ QFrame* packetFrameMaker(QString explanation, QFrame* innerFrame) {
     outerFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
     QHBoxLayout* hl = new QHBoxLayout();
     QLabel* ethHdrExp = new QLabel(explanation);
-    innerFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
     hl->addWidget(ethHdrExp);
-    hl->addWidget(innerFrame);
+    if (innerFrame) {
+        innerFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        hl->addWidget(innerFrame);
+    }
     outerFrame->setLayout(hl);
 
     return outerFrame;

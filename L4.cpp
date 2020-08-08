@@ -18,7 +18,7 @@ std::vector<std::pair<std::string, std::string>> interpretTCPHeaders(std::vector
     TCPHdr.push_back(std::pair<std::string, std::string>(
                           "Acknowledgement Number: ", std::to_string(ackNum)));
 
-    uint8_t hdrLen = pkt[ofs+12] & 0xF0;
+    uint8_t hdrLen = pkt[ofs+12] >> 4;
     TCPHdr.push_back(std::pair<std::string, std::string>(
                           "Header length: ", std::to_string(hdrLen)));
     // Next 6 bits are reserved in the TCP header. They are always zero

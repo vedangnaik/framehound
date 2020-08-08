@@ -30,6 +30,7 @@ void PacketInterpreter::startInterpreting() {
             protocolToInterpret = &interpretEthernetHeaders;
         }
         L2 = (*protocolToInterpret)(packet, inf);
+
         // same as above for L3 header
         switch(inf.innerProtocolID) {
         case 2048: //IPv4
@@ -39,6 +40,7 @@ void PacketInterpreter::startInterpreting() {
             protocolToInterpret = &interpretNothing;
         }
         L3 = (*protocolToInterpret)(packet, inf);
+
         // same as above for L4 header
         switch(inf.innerProtocolID) {
         case 6: //TCP
@@ -49,8 +51,7 @@ void PacketInterpreter::startInterpreting() {
         }
         L4 = (*protocolToInterpret)(packet, inf);
 
-
         bklg.pop();
-        emit sendProtocolsToGUI(L2, L3, L4);
+        emit sendProtocolsToGUI(L2, L3, L4,  packet.size() - inf.offsetFromStart);
     }
 }
