@@ -44,6 +44,8 @@ public slots:
     void closeEvent(QCloseEvent* event);
 };
 
-QFrame* packetFrameMaker(QString explanation, QFrame* innerFrame);
+QFrame* makeProtocolFrame(QString explanation, QFrame* innerFrame,
+                          int lineWidth, int midLineWidth,
+                          int shape, int shadow);
 
 #endif // FRAMEHOUND_H

@@ -60,31 +60,31 @@ void FrameHound::receiveProtocolsFromManager(
 {
     // Make data frame. TODO: Add length inside
     QString dataExp = QString::number(dataLen) + " bytes of data";
-    QFrame* dataFrame = packetFrameMaker(dataExp, NULL);
+    QFrame* dataFrame = makeProtocolFrame(dataExp, NULL, 4, 3, QFrame::Box, QFrame::Sunken);
 
     // Make L4 frame
     std::stringstream L4ss;
     for (auto const& x: L4) {
         L4ss << x.first << x.second << "\n";
     }
-    QString L4intrp = QString::fromStdString(L4ss.str());
-    QFrame* L4Frame = packetFrameMaker(L4intrp, dataFrame);
+    QString L4Exp = QString::fromStdString(L4ss.str());
+    QFrame* L4Frame = makeProtocolFrame(L4Exp, dataFrame, 4, 3, QFrame::Box, QFrame::Sunken);
 
     // Make L3 frame
     std::stringstream L3ss;
     for (auto const& x: L3) {
         L3ss << x.first << x.second << "\n";
     }
-    QString L3intrp = QString::fromStdString(L3ss.str());
-    QFrame* L3Frame = packetFrameMaker(L3intrp, L4Frame);
+    QString L3Exp = QString::fromStdString(L3ss.str());
+    QFrame* L3Frame = makeProtocolFrame(L3Exp, L4Frame, 4, 3, QFrame::Box, QFrame::Sunken);
 
     // Make L2 frame
     std::stringstream L2ss;
     for (auto const& x: L2) {
         L2ss << x.first << x.second << "\n";
     }
-    QString L2intrp = QString::fromStdString(L2ss.str());
-    QFrame* L2Frame = packetFrameMaker(L2intrp, L3Frame);
+    QString L2Exp = QString::fromStdString(L2ss.str());
+    QFrame* L2Frame = makeProtocolFrame(L2Exp, L3Frame, 5, 5, QFrame::Box, QFrame::Plain);
 
     // Append completed frame to scrollArea
     ui->packetDisplay->addWidget(L2Frame);
@@ -117,9 +117,13 @@ void FrameHound::closeEvent(QCloseEvent* event) {
 }
 
 
-QFrame* packetFrameMaker(QString explanation, QFrame* innerFrame) {
+QFrame* makeProtocolFrame(QString explanation, QFrame* innerFrame,
+                          int lineWidth, int midLineWidth,
+                          int shape, int shadow) {
     QFrame* outerFrame = new QFrame();
-    outerFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
+    outerFrame->setLineWidth(lineWidth);
+    outerFrame->setMidLineWidth(midLineWidth);
+    outerFrame->setFrameStyle(shape | shadow);
     QHBoxLayout* hl = new QHBoxLayout();
     QLabel* ethHdrExp = new QLabel(explanation);
 
