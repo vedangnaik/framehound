@@ -3,13 +3,14 @@
 
 #include "sniffer.h"
 #include "packetinterpreter.h"
-#include "protocols.h"
+#include "interpreters.h"
 
 #include <QMainWindow>
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QThread>
 #include <QLabel>
+#include <QRadioButton>
 
 #include <sys/types.h>
 #include <ifaddrs.h>

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <time.h>
 
-#include "protocols.h"
+#include "interpreters.h"
 
 
 class PacketInterpreter : public QObject

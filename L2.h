@@ -1,7 +1,7 @@
 #ifndef L2_H
 #define L2_H
 
-#include "protocols.h"
+#include "interpreters.h"
 
 std::vector<std::pair<std::string, std::string>> interpretEthernetHeaders(std::vector<uint8_t>& pkt, struct innerProtocolInfo& inf);
 

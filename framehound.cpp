@@ -20,8 +20,9 @@ FrameHound::FrameHound(QWidget *parent)
     struct ifaddrs* curr;
     for (curr = ifa; curr != NULL && curr->ifa_addr->sa_family == AF_PACKET; curr = curr->ifa_next) {
         QString ifrName = QString(curr->ifa_name);
-        QAction* act = ui->chooseInterfaceMenu->addAction(ifrName);
-        connect(act, &QAction::triggered, this, [=]{ this->sni->setIfrName(ifrName); });
+        QRadioButton* btn = new QRadioButton(ifrName, this);
+        connect(btn, &QRadioButton::clicked, this, [=]{ this->sni->setIfrName(ifrName); });
+        ui->interfaces->addWidget(btn);
     }
     freeifaddrs(ifa);
 
@@ -60,7 +61,7 @@ void FrameHound::receiveProtocolsFromManager(
 {
     // Make data frame. TODO: Add length inside
     QString dataExp = QString::number(dataLen) + " bytes of data";
-    QFrame* dataFrame = makeProtocolFrame(dataExp, NULL, 4, 3, QFrame::Box, QFrame::Sunken);
+    QFrame* dataFrame = makeProtocolFrame(dataExp, NULL, 3, 2, QFrame::Box, QFrame::Sunken);
 
     // Make L4 frame
     std::stringstream L4ss;
@@ -68,7 +69,7 @@ void FrameHound::receiveProtocolsFromManager(
         L4ss << x.first << x.second << "\n";
     }
     QString L4Exp = QString::fromStdString(L4ss.str());
-    QFrame* L4Frame = makeProtocolFrame(L4Exp, dataFrame, 4, 3, QFrame::Box, QFrame::Sunken);
+    QFrame* L4Frame = makeProtocolFrame(L4Exp, dataFrame, 3, 2, QFrame::Box, QFrame::Sunken);
 
     // Make L3 frame
     std::stringstream L3ss;
@@ -76,7 +77,7 @@ void FrameHound::receiveProtocolsFromManager(
         L3ss << x.first << x.second << "\n";
     }
     QString L3Exp = QString::fromStdString(L3ss.str());
-    QFrame* L3Frame = makeProtocolFrame(L3Exp, L4Frame, 4, 3, QFrame::Box, QFrame::Sunken);
+    QFrame* L3Frame = makeProtocolFrame(L3Exp, L4Frame, 3, 2, QFrame::Box, QFrame::Sunken);
 
     // Make L2 frame
     std::stringstream L2ss;
@@ -84,7 +85,7 @@ void FrameHound::receiveProtocolsFromManager(
         L2ss << x.first << x.second << "\n";
     }
     QString L2Exp = QString::fromStdString(L2ss.str());
-    QFrame* L2Frame = makeProtocolFrame(L2Exp, L3Frame, 5, 5, QFrame::Box, QFrame::Plain);
+    QFrame* L2Frame = makeProtocolFrame(L2Exp, L3Frame, 3, 2, QFrame::Box, QFrame::Sunken);
 
     // Append completed frame to scrollArea
     ui->packetDisplay->addWidget(L2Frame);

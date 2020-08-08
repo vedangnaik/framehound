@@ -19,10 +19,10 @@ SOURCES += \
     L2.cpp \
     L3.cpp \
     L4.cpp \
+    interpreters.cpp \
     main.cpp \
     framehound.cpp \
     packetinterpreter.cpp \
-    protocols.cpp \
     sniffer.cpp
 
 HEADERS += \
@@ -30,8 +30,8 @@ HEADERS += \
     L3.h \
     L4.h \
     framehound.h \
+    interpreters.h \
     packetinterpreter.h \
-    protocols.h \
     sniffer.h
 
 FORMS += \
