@@ -53,13 +53,19 @@ FrameHound::~FrameHound()
 
 void FrameHound::receiveProtocolsFromManager(
         std::vector<std::pair<std::string, std::string>> L2,
-        std::vector<std::pair<std::string, std::string>> L3)
+        std::vector<std::pair<std::string, std::string>> L3,
+        std::vector<std::pair<std::string, std::string>> L4)
 {
     // Make data frame. TODO: Add length inside
     QFrame* dataFrame = new QFrame();
 
     // Make L4 frame
-    //TODO
+    std::stringstream L4ss;
+    for (auto const& x: L4) {
+        L4ss << x.first << x.second << "\n";
+    }
+    QString L4intrp = QString::fromStdString(L4ss.str());
+    QFrame* L4Frame = packetFrameMaker(L4intrp, dataFrame);
 
     // Make L3 frame
     std::stringstream L3ss;
@@ -67,7 +73,7 @@ void FrameHound::receiveProtocolsFromManager(
         L3ss << x.first << x.second << "\n";
     }
     QString L3intrp = QString::fromStdString(L3ss.str());
-    QFrame* L3Frame = packetFrameMaker(L3intrp, dataFrame);
+    QFrame* L3Frame = packetFrameMaker(L3intrp, L4Frame);
 
     // Make L2 frame
     std::stringstream L2ss;

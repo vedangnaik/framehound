@@ -21,8 +21,7 @@ void PacketInterpreter::startInterpreting() {
         // set up vectors for L2, L3, L4 protocols
         std::vector<uint8_t> packet = bklg.front();
         struct innerProtocolInfo inf = {0, 0};
-        std::vector<std::pair<std::string, std::string>> L2;
-        std::vector<std::pair<std::string, std::string>> L3;
+        std::vector<std::pair<std::string, std::string>> L2, L3, L4;
         std::vector<std::pair<std::string, std::string>> (*protocolToInterpret)(std::vector<uint8_t>& packet, struct innerProtocolInfo& inf);
 
         // set function pointer to function to interpret this L2 header
@@ -38,9 +37,16 @@ void PacketInterpreter::startInterpreting() {
             break;
         }
         L3 = (*protocolToInterpret)(packet, inf);
+        // same as above for L4 header
+        switch(inf.innerProtocolID) {
+        case 6: //TCP
+            protocolToInterpret = &intrpTCPHeaders;
+            break;
+        }
+        L4 = (*protocolToInterpret)(packet, inf);
 
 
         bklg.pop();
-        emit sendProtocolsToGUI(L2, L3);
+        emit sendProtocolsToGUI(L2, L3, L4);
     }
 }

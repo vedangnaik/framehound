@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     L2.cpp \
     L3.cpp \
+    L4.cpp \
     main.cpp \
     framehound.cpp \
     packetinterpreter.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 HEADERS += \
     L2.h \
     L3.h \
+    L4.h \
     framehound.h \
     packetinterpreter.h \
     protocols.h \
