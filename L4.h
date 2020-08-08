@@ -4,6 +4,6 @@
 #include "protocols.h"
 #include <bitset>
 
-std::vector<std::pair<std::string, std::string>> intrpTCPHeaders(std::vector<uint8_t>& pkt, struct innerProtocolInfo& inf);
+std::vector<std::pair<std::string, std::string>> interpretTCPHeaders(std::vector<uint8_t>& pkt, struct innerProtocolInfo& inf);
 
 #endif // L4_H

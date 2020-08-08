@@ -27,21 +27,25 @@ void PacketInterpreter::startInterpreting() {
         // set function pointer to function to interpret this L2 header
         switch(inf.innerProtocolID) {
         default:
-            protocolToInterpret = &intrpEthernetHeaders;
+            protocolToInterpret = &interpretEthernetHeaders;
         }
         L2 = (*protocolToInterpret)(packet, inf);
         // same as above for L3 header
         switch(inf.innerProtocolID) {
         case 2048: //IPv4
-            protocolToInterpret = &intrpIPv4Headers;
+            protocolToInterpret = &interpretIPv4Headers;
             break;
+        default:
+            protocolToInterpret = &interpretNothing;
         }
         L3 = (*protocolToInterpret)(packet, inf);
         // same as above for L4 header
         switch(inf.innerProtocolID) {
         case 6: //TCP
-            protocolToInterpret = &intrpTCPHeaders;
+            protocolToInterpret = &interpretTCPHeaders;
             break;
+        default:
+            protocolToInterpret = &interpretNothing;
         }
         L4 = (*protocolToInterpret)(packet, inf);
 

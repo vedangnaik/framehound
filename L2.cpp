@@ -1,7 +1,7 @@
 #include "L2.h"
 
 
- std::vector<std::pair<std::string, std::string>> intrpEthernetHeaders(std::vector<uint8_t>& pkt, struct innerProtocolInfo& inf) {
+ std::vector<std::pair<std::string, std::string>> interpretEthernetHeaders(std::vector<uint8_t>& pkt, struct innerProtocolInfo& inf) {
     std::vector<std::pair<std::string, std::string>> ethHdr;
 
     std::stringstream ss;

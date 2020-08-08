@@ -22,6 +22,7 @@ SOURCES += \
     main.cpp \
     framehound.cpp \
     packetinterpreter.cpp \
+    protocols.cpp \
     sniffer.cpp
 
 HEADERS += \

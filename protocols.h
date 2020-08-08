@@ -19,5 +19,6 @@ struct innerProtocolInfo {
     size_t offsetFromStart;
 };
 
+std::vector<std::pair<std::string, std::string>> interpretNothing(std::vector<uint8_t>& pkt, struct innerProtocolInfo& inf);
 
 #endif // PROTOCOLS_H
